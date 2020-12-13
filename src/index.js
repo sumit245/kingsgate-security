@@ -1,7 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import "react-bootstrap";
+import "./css/bootstrap.min.css";
+import "./font-awesome/css/font-awesome.css";
+import "./css/style.css";
+import "./css/animate.css";
+import "./css/plugins/toastr/toastr.min.css";
+import "./js/plugins/gritter/jquery.gritter.css";
 import './index.css';
-import App from './App';
+import App from './views/App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
