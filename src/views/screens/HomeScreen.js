@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import 'jquery/dist/jquery'
-import $ from 'jquery'
 import SideNavBar from "../Components/SideNavBar";
 import Footer from "../Components/Footer";
 import TopNav from "../Components/TopNav";
