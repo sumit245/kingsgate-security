@@ -24,7 +24,7 @@ export default class App extends React.Component{
                     <a href="/mailbox"><i className="fa fa-envelope" /> <span className="nav-label">Mailbox </span><span className="label label-warning float-right">16/24</span></a>
                   </li>
                   <li>
-                    <a href="#"><i className="fa fa-map-marker" /> <span className="nav-label">Addresses</span></a>
+                    <a href="#"><i className="fa fa-map-marker" /> <span className="nav-label">Factories</span></a>
                   </li>
                   <li>
                     <a href="#"><i className="fa fa-rss" /> <span className="nav-label">Subscriptions</span></a>
@@ -39,7 +39,7 @@ export default class App extends React.Component{
                     <a href="#"><i className="fa fa-users" /> <span className="nav-label">Groups</span></a>
                   </li>
                   <li>
-                    <a href="#"><i className="fa fa-globe" /> <span className="nav-label">Shifts</span></a>
+                    <a href="#"><i className="fa fa-globe" /> <span className="nav-label">Gallery</span></a>
                   </li>
                   <li>
                     <a href="#"><i className="fa fa-cog" /> <span className="nav-label">Settings</span></a>
