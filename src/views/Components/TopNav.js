@@ -1,34 +1,33 @@
 import React, { useState } from "react";
-import { Button, Form, Modal } from "react-bootstrap";
-import { RadioGroup, Radio } from "react-radio-group";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { Button, Modal } from "react-bootstrap";
 import "../../css/clientformstyle.css";
-function addFields() {
-  // Number of inputs to create
-  var number = document.getElementById("member").value;
-  // Container <div> where dynamic content will be placed
-  var container = document.getElementById("container");
-  // Clear previous contents of the container
-  while (container.hasChildNodes()) {
-    container.removeChild(container.lastChild);
-  }
-  for (var i = 0; i < number; i++) {
-    // Append a node with a random text
-    container.appendChild(document.createTextNode("Member " + (i + 1)));
-    // Create an <input> element, set its type and name attributes
-    var input = document.createElement("input");
-    input.type = "text";
-    input.name = "member" + i;
-    container.appendChild(input);
-    // Append a line break
-    container.appendChild(document.createElement("br"));
-  }
-}
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import { Switch } from "@material-ui/core";
+import {clientData} from '../../models/data'
+
 function TopNav() {
-  const [show, setShow, showNotifs, setShowNotifs] = useState(false);
+  const [show, setShow] = useState(false);
+  const [showFactory, setShowFactory] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const handleShowFactory = () => setShowFactory(true);
+  const handleCloseFactory = () => setShowFactory(false);
+  var count = 2;
+  const addFields = () => {
+    var container = document.getElementById("addFactory");
+
+    container.appendChild(document.createTextNode("Factory" + count));
+    var input = document.createElement("input");
+    input.type = "text";
+    input.name = "Factory+1";
+    input.className = "col-sm-12";
+    container.appendChild(input);
+    container.appendChild(document.createElement("br"));
+    
+    count += 1;
+  };
 
   return (
     <>
@@ -38,12 +37,6 @@ function TopNav() {
         style={{ marginBottom: 0 }}
       >
         <div className="navbar-header">
-          <a
-            className="navbar-minimalize minimalize-styl-2 btn btn-primary "
-            href="#"
-          >
-            <i className="fa fa-bars" />{" "}
-          </a>
           <form
             role="search"
             className="navbar-form-custom"
@@ -66,11 +59,15 @@ function TopNav() {
               Welcome to KingsGate Security.
             </span>
           </li>
-          <li className="dropdown">
-            <Button variant="primary" onClick={handleShow}>
-              Add
-            </Button>
-          </li>
+          <DropdownButton
+            className="dropdown"
+            title="Add"
+            style={{ marginTop: 14 }}
+          >
+            <Dropdown.Item onClick={handleShow}>Client</Dropdown.Item>
+            <Dropdown.Item onClick={handleShowFactory}>Factory</Dropdown.Item>
+            <Dropdown.Item href="/">Subscription</Dropdown.Item>
+          </DropdownButton>
           <li className="dropdown">
             <a
               className="dropdown-toggle count-info"
@@ -89,7 +86,7 @@ function TopNav() {
         </ul>
       </nav>
 
-      <Modal show={show} onHide={handleClose} size="lg">
+      <Modal show={show} onHide={handleClose} size="lg" >
         <Modal.Body>
           <div className="form-style-10">
             <h1>Add Client</h1>
@@ -99,16 +96,16 @@ function TopNav() {
               </div>
               <div className="form-group row inner-wrap">
                 <label className="col-md-6 col-form-label">
-                  First Name{" "}
-                  <input className="col-sm-12" type="text" name="fname" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Last Name{" "}
-                  <input className="col-sm-12" type="text" name="lname" />
+                  Client Name{" "}
+                  <input className="col-sm-12" type="text" name="cname" />
                 </label>
                 <label className="col-md-6 col-form-label">
                   Phone Number{" "}
                   <input className="col-sm-12" type="text" name="phno" />
+                </label>
+                <label className="col-md-6 col-form-label">
+                  Mobile Number{" "}
+                  <input className="col-sm-12" type="text" name="mobno" />
                 </label>
                 <label className="col-md-6 col-form-label">
                   Email Address{" "}
@@ -120,63 +117,112 @@ function TopNav() {
               </div>
               <div className="form-group row inner-wrap">
                 <label className="col-md-6 col-form-label">
-                  Flat Number{" "}
+                  Sector{" "}
                   <input className="col-sm-12" type="text" name="flatnum" />
                 </label>
                 <label className="col-md-6 col-form-label">
-                  Sector <input className="col-sm-12" type="text" name="sect" />
+                  Block <input className="col-sm-12" type="text" name="sect" />
                 </label>
                 <label className="col-md-6 col-form-label">
-                  Block <input className="col-sm-12" type="text" name="block" />
+                  Address<input className="col-sm-12" type="text" name="block" />
                 </label>
                 <label className="col-md-6 col-form-label">
                   Company Name <input type="text" name="compname" />
-                  <a href="#" className="mx-2">
-                    Add More Companies
-                  </a>
                 </label>
                 <label className="col-md-6 col-form-label">
-                  Payment Method{" "}
-                  <input className="col-sm-12" type="email" name="paymethod" />
-                  <a href="#" className="mx-2">
-                    Add Method(s)
-                  </a>
+                  GST Applicable
+                  <Switch onChange={()=>{document.getElementById('gstinput').disabled=false}} />
                 </label>
-                <div className="form-group row inner-wrap">
-                  <label className="col-md-6 col-form-label" htmlFor='gstInput '>GST Applicable</label>
-                <RadioGroup
-                  aria-label="anonymous"
-                  name="anonymous"
-                  value={false}
-                  row
-                  id='gstInput'
-                >
-                  <FormControlLabel
-                    value="true"
-                    control={<Radio />}
-                    label="Yes"
-                  />
-                  <FormControlLabel
-                    value="false"
-                    control={<Radio />}
-                    label="No"
-                    
-                  />
-                </RadioGroup>
-
-                </div>
-                              </div>
+                <label className="col-md-6 col-form-label">
+                  GST Number{" "}
+                  <input className="col-sm-12" disabled type="text" id='gstinput' name="gstnum" />
+                </label>
+                
+              </div>
             </form>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Close
+            Reset
           </Button>
           <Button variant="primary" onClick={handleClose}>
             Save Changes
           </Button>
           <Button variant="danger" onClick={handleClose}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showFactory} onHide={handleClose} size="lg">
+        <Modal.Body>
+          <div className="form-style-10">
+            <h1>Add Factory</h1>
+            <form method="post">
+              <div className="form-group row inner-wrap" id="addFactory">
+                <label className="col-md-6 col-form-label">
+                  Owner Name
+                  <select>
+                    {clientData.map((data,key)=>{
+                      <option key={key}value={data.firstName} >{data.firstName}</option>
+                    }
+                    )}
+                    
+                  </select>
+                </label>
+                <label className="col-md-6 col-form-label">
+                  Mobile Number
+                  <input className="col-sm-12" type="text" name="mobnum" />
+                </label>
+                <label className="col-md-6 col-form-label">
+                  Factory Name
+                  <input className="col-sm-12" type="text" name="factoryname" />
+                </label>
+                <label className="col-md-6 col-form-label">
+                  Sector
+                  <input className="col-sm-12" type="text" name="sector" />
+                </label>
+                <label className="col-md-6 col-form-label">
+                  Block
+                  <input className="col-sm-12" type="text" name="block" />
+                </label>
+                <label className="col-md-6 col-form-label">
+                  Close Date
+                  <input className="col-sm-12" type="text" name="block" />
+                </label>
+                <label className="col-md-6 col-form-label"> 
+                  Address{" "}
+                  <input
+                    className="col-sm-12"
+                    type="text"
+                    name="factoryaddress"
+                    id="factoryaddress"
+                  />
+                </label>
+                
+                <Button
+                  name="more"
+                  title="More"
+                  variant="secondary"
+                  className="mx-3"
+                  onClick={addFields}
+                  style={{width:'auto',height:30,marginTop:25}}
+                >
+                  Add Factory
+                </Button>
+              </div>
+            </form>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseFactory}>
+            Reset
+          </Button>
+          <Button variant="primary" onClick={handleCloseFactory}>
+            Save Changes
+          </Button>
+          <Button variant="danger" onClick={handleCloseFactory}>
             Cancel
           </Button>
         </Modal.Footer>

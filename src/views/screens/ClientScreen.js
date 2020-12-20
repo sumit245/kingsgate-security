@@ -3,9 +3,10 @@ import 'jquery/dist/jquery'
 import SideNavBar from "../Components/SideNavBar";
 import Footer from "../Components/Footer";
 import TopNav from "../Components/TopNav";
-import Mychart from '../Components/Mychart'
+import ClientTable from "../Components/ClientTable";
 
-export default class HomeScreen extends Component {
+
+export default class ClientScreen extends Component {
     componentDidMount() {
         const script = document.createElement("script");
         script.src = "../../js/jquery-3.1.1.min.js";
@@ -16,16 +17,16 @@ export default class HomeScreen extends Component {
       }
       render() {
         return (
-          <div id='home'>
-            <SideNavBar pageWrapId={"page-wrapper"} outerContainerId={'home'} />
+          <>
+            <SideNavBar />
             <div id="page-wrapper" className="gray-bg dashbard-1">
               <div className="row border-bottom">
                 <TopNav /> 
               </div>
-              <Mychart />
+              <ClientTable />
               <Footer />
             </div>
-          </div>
+          </>
         );
       }
 }
