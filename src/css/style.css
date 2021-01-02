@@ -888,7 +888,7 @@ h5 {
 }
 .navbar-default {
   background-color: transparent;
-  border-color: #2f4050;
+  border-color: #000;
 }
 .navbar-top-links li {
   display: inline-block;
@@ -995,7 +995,7 @@ h5 {
 }
 .nav-header {
   padding: 33px 25px;
-  background-color: #2f4050;
+  background-color: #000;
   background-image: url("patterns/header-profile.png");
 }
 .caret {
@@ -1137,7 +1137,7 @@ body.mini-navbar .navbar-default .nav > li > .nav-second-level li a {
   position: absolute;
   left: 70px;
   top: 0;
-  background-color: #2f4050;
+  background-color: #000;
   padding: 10px 10px 10px 10px;
   font-size: 12px;
 }
@@ -1369,7 +1369,7 @@ body.canvas-menu.mini-navbar .navbar-default .nav li .profile-element a span {
 }
 body.canvas-menu nav.navbar-static-side {
   z-index: 2001;
-  background: #2f4050;
+  background: #000;
   height: 100%;
   position: fixed;
   display: none;
@@ -2139,19 +2139,19 @@ button.dim:active:before {
 }
 /* TOOLTIPS */
 .tooltip-inner {
-  background-color: #2f4050;
+  background-color: #000;
 }
 .tooltip.top .tooltip-arrow {
-  border-top-color: #2f4050;
+  border-top-color: #000;
 }
 .tooltip.right .tooltip-arrow {
-  border-right-color: #2f4050;
+  border-right-color: #000;
 }
 .tooltip.bottom .tooltip-arrow {
-  border-bottom-color: #2f4050;
+  border-bottom-color: #000;
 }
 .tooltip.left .tooltip-arrow {
-  border-left-color: #2f4050;
+  border-left-color: #000;
 }
 /* EASY PIE CHART*/
 .easypiechart {
@@ -4295,7 +4295,7 @@ samp {
   padding: 12px 10px;
   margin: 0;
   border-radius: 0;
-  background: #2f4050;
+  background: #000;
   color: #fff;
   text-align: center;
   border-right: 1px solid #334556;
@@ -4368,7 +4368,7 @@ samp {
 }
 body {
   font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif,-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #2f4050;
+  background-color: #000;
   font-size: 13px;
   color: #676a6c;
   overflow-x: hidden;
@@ -4388,7 +4388,7 @@ body.boxed-layout {
   background: url('patterns/shattered.png');
 }
 body.boxed-layout #wrapper {
-  background-color: #2f4050;
+  background-color: #000;
   max-width: 1200px;
   margin: 0 auto;
   -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
@@ -5218,6 +5218,9 @@ a.close-canvas-menu:hover {
   margin-left: 20%;
   overflow: scroll;
   padding: 20px;
+}
+.modal::-webkit-scrollbar{
+  display: none;
 }
 .spiner-example {
   height: 200px;
@@ -6382,7 +6385,7 @@ dd.project-people {
 .article h1 {
   font-size: 48px;
   font-weight: 700;
-  color: #2f4050;
+  color: #000;
 }
 .article p {
   font-size: 15px;
@@ -6753,7 +6756,7 @@ body.body-small .vote-icon {
   display: block;
 }
 .small-chat-box .heading {
-  background: #2f4050;
+  background: #000;
   padding: 8px 15px;
   font-weight: bold;
   color: #fff;
@@ -9626,4 +9629,21 @@ body.md-skin {
 .modal-client{
   position: relative;
   width: fit-content;
+}
+
+.tab-list {  border-bottom: 1px solid #ccc;
+  padding-left: 0;
+}
+
+.tab-list-item {
+  display: inline-block;
+  list-style: none;
+  margin-bottom: -1px;
+  padding: 0.5rem 0.75rem;
+}
+
+.tab-list-active {
+  background-color: white;
+  border: solid #ccc;
+  border-width: 1px 1px 0 1px;
 }

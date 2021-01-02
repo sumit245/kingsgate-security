@@ -9,21 +9,16 @@ import "datatables.net-select-dt";
 import * as jzip from "jszip";
 import "pdfmake";
 import $ from "jquery";
-import { Button, Modal } from "react-bootstrap";
-import {clientData} from '../../models/data'
-
-import { subscriptionData as stockData } from "../../models/data";
+import { Dropdown } from "react-bootstrap";
+import axios from 'axios'
+import SubscriptionForm from './SubscriptionForm'
 
 window.JSZip = jzip;
 
-
-
 export default class SubscriptionTable extends Component {
-  constructor(props) {
-    super(props);
-  }
   state = {
     showsubscription: false,
+    stockData:[]
   };
   handleCloseSubscription = () => {
     this.setState({ showSubscription: false });
@@ -34,47 +29,96 @@ export default class SubscriptionTable extends Component {
     });
   };
   componentDidMount() {
-    $(document).ready(function () {
-      $("#example").DataTable({
+    axios.get('http://localhost:4000/kingsgate/subscription/')
+    .then((res)=>{
+      this.setState({stockData:res.data})
+      $("#subscriptionTable").DataTable({
         searching: false,
         dom: "Bfrtip",
-        buttons: [
-          {
-            
-                text: "Add",
-                action: function (e, dt, node, config) {
-                  let modal = document.getElementById("myModal");
-                  modal.style.display = "block";
-                },
-              },
-              {
-                text: '<i class="fa fa-ellipsis-v" aria-hidden="true"></i>',
-                action: function (e, dt, node, config) {
-                  
-                },
-              },
-        ],
+        buttons: [],
         responsive: true,
         select: true,
         scrollX: true,
       });
-    });
-    
-  }
 
+    })
+     
+  }
+  exportData = () => {
+    var filename = "Kingsgate";
+    var downloadurl;
+    var dataFileType = "application/vnd.ms-excel";
+    var tableSelect = $("#clientTable").DataTable();
+    var tableHTMLData = tableSelect.rows().data().toArray();
+    tableHTMLData = JSON.stringify(tableHTMLData);
+    // Specify file name
+    filename = filename ? filename + ".xls" : "export_excel_data.xls";
+
+    // Create download link element
+    downloadurl = document.createElement("a");
+
+    document.body.appendChild(downloadurl);
+
+    if (navigator.msSaveOrOpenBlob) {
+      var blob = new Blob(["\ufeff", tableHTMLData], {
+        type: dataFileType,
+      });
+      navigator.msSaveOrOpenBlob(blob, filename);
+    } else {
+      // Create a link to the file
+      downloadurl.href = "data:" + dataFileType + ", " + tableHTMLData;
+
+      // Setting the file name
+      downloadurl.download = filename;
+
+      //triggering the function
+      downloadurl.click();
+    }
+  };
+  closeAddModal = () => {
+    let modal = document.getElementById("subscriptionModal");
+    modal.style.display = "none";
+  };
+  addClickedEvent() {
+    let modal = document.getElementById("subscriptionModal");
+    modal.style.display = "block";
+  }
   render() {
     return (
       <div className="container mx-auto my-4">
-        <table id="example" className="display table" data={stockData}>
+        <div className="row mx-2" style={{ justifyContent: "flex-start" }}>
+          <button
+            title="Add"
+            className="btn btn-secondary my-2"
+            onClick={this.addClickedEvent}
+          >
+            Add{" "}
+          </button>
+          <Dropdown style={{ marginLeft: 2, marginTop: 8 }}>
+            <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+              <i className="fa fa-ellipsis-v"></i>
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu>
+              <Dropdown.Item onSelect={this.exportData}>Export</Dropdown.Item>
+              <Dropdown.Item href="#/action-2">Import</Dropdown.Item>
+              <Dropdown.Item>Delete</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
+        <table
+          id="subscriptionTable"
+          className="display table"
+        >
           <thead className="table-dark">
             <tr>
               <th>Client Name</th>
               <th>Mobile</th>
-              <th>Advance</th>
+              <th>Factory</th>
               <th>Type</th>
               <th>Start Date</th>
               <th>End Date</th>
-              <th>Status</th>
+              
             </tr>
           </thead>
           <tr>
@@ -96,13 +140,9 @@ export default class SubscriptionTable extends Component {
             <th>
               <input className="form-control" placeholder="Search..." />
             </th>
-            <th>
-              <input className="form-control" placeholder="Search..." />
-            </th>
-
           </tr>
           <tbody>
-            {stockData.map((data, key) => {
+            {this.state.stockData.map((data, key) => {
               return (
                 <tr key={key}>
                   <td
@@ -112,16 +152,7 @@ export default class SubscriptionTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.firstName+ ' ' + data.lastName}
-                  </td>
-                  <td
-                    style={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >{data.mobileNumber}
-                    
+                    {data.client_name}
                   </td>
                   <td
                     style={{
@@ -130,7 +161,7 @@ export default class SubscriptionTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.company}
+                    {data.mobile_number}
                   </td>
                   <td
                     style={{
@@ -139,12 +170,7 @@ export default class SubscriptionTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    <select>
-                      <option>CCTV</option>
-                      <option>Night Patrol</option>
-                      <option>Both</option>
-
-                    </select>
+                    {data.factory_name}
                   </td>
                   <td
                     style={{
@@ -153,7 +179,7 @@ export default class SubscriptionTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.start }
+                    {data.subscription_type}
                   </td>
                   <td
                     style={{
@@ -162,7 +188,7 @@ export default class SubscriptionTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.end}
+                    {data.start_date}
                   </td>
                   <td
                     style={{
@@ -171,75 +197,22 @@ export default class SubscriptionTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.status}
+                    {data.end_date}
                   </td>
-
+                 
                 </tr>
               );
             })}
           </tbody>
         </table>
 
-        <div id="myModal" style={{overflow:'hidden'}} className="modal modal-open">
-            <div className="form-style-10">
-            <h1>Add Subscription</h1>
-            <form method="post">
-              <div className="form-group row inner-wrap" id="addFactory">
-                <label className="col-md-6 col-form-label">
-                  Client
-                  <select>
-                    {clientData.map((data,key)=>{
-                      <option key={key} value={data.firstName} >{data.firstName}</option>
-                    }
-                    )}
-                    
-                  </select>
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Mobile Number
-                  <input className="col-sm-12" type="text" name="mobnum" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Factory Name
-                  <input className="col-sm-12" type="text" name="factoryname" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Type
-                  <select>
-                      <option>CCTV</option>
-                      <option>Night Patrol</option>
-                      <option>Both</option>
-
-                    </select>
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Start Date
-                  <input className="col-sm-12" type="text" name="block" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  End Date
-                  <input className="col-sm-12" type="text" name="block" />
-                </label>
-      
-                
-              </div>
-            </form>
-            <Button variant="secondary">
-            Reset
-          </Button>
-          <Button variant="primary" >
-            Save Changes
-          </Button>
-          <Button variant="danger" >
-            Cancel
-          </Button>
-            </div>
-
-          
-
+        <div
+          id="subscriptionModal"
+          style={{ overflow: "hidden" }}
+          className="modal modal-open"
+        >
+          <SubscriptionForm />
         </div>
-
-        
       </div>
     );
   }

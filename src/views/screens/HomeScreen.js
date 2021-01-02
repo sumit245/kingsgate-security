@@ -4,6 +4,7 @@ import SideNavBar from "../Components/SideNavBar";
 import Footer from "../Components/Footer";
 import TopNav from "../Components/TopNav";
 import Mychart from '../Components/Mychart'
+import Dashboard from '../Components/Dashboard';
 
 export default class HomeScreen extends Component {
     componentDidMount() {
@@ -22,6 +23,7 @@ export default class HomeScreen extends Component {
               <div className="row border-bottom">
                 <TopNav /> 
               </div>
+              <Dashboard></Dashboard>
               <Mychart />
               <Footer />
             </div>

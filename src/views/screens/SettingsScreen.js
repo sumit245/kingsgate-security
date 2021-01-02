@@ -2,7 +2,7 @@ import 'jquery/dist/jquery'
 import SideNavBar from "../Components/SideNavBar";
 import Footer from "../Components/Footer";
 import TopNav from "../Components/TopNav";
-import ClientTable from "../Components/ClientTable";
+import DummyTable from '../Components/DummyTable'
 import React, { Component } from 'react'
 
 export default class SettingsScreen extends Component {
@@ -22,7 +22,7 @@ export default class SettingsScreen extends Component {
               <div className="row border-bottom">
                 <TopNav /> 
               </div>
-              <ClientTable />
+              <DummyTable />
               <Footer />
             </div>
           </>

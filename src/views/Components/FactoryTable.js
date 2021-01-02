@@ -1,199 +1,222 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 import "jquery/dist/jquery.min.js";
 import "datatables.net-dt/js/dataTables.dataTables";
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-buttons-dt";
 import "datatables.net-buttons/js/buttons.html5.js";
 import "datatables.net-buttons-dt/css/buttons.dataTables.css";
-import 'datatables.net-select-dt'
+import "datatables.net-select-dt";
 import * as jzip from "jszip";
-import { Button, Modal } from "react-bootstrap";
+import { Dropdown } from "react-bootstrap";
+import axios from "axios";
+import FactoryForm from "./FactoryForm";
 import "pdfmake";
 import $ from "jquery";
-import {clientData} from '../../models/data'
-
-import { factoryData as stockData } from "../../models/data";
 
 window.JSZip = jzip;
-const count=2
-const addFields = () => {
-  var container = document.getElementById("addFactory");
-
-  container.appendChild(document.createTextNode("Factory" + count));
-  var input = document.createElement("input");
-  input.type = "text";
-  input.name = "Factory+1";
-  input.className = "col-sm-12";
-  container.appendChild(input);
-  container.appendChild(document.createElement("br"));
-  
-  count += 1;
-};
 
 export default class FactoryTable extends Component {
-    constructor(props) {
-        super(props);
-      }
-      componentDidMount() {
-       
-        $(document).ready(function () {
-        $("#example").DataTable({
-            searching: false,
-            dom: "Bfrtip",
-            buttons: [
-              {
-                text: "Add",
-                action: function (e, dt, node, config) {
-                  let modal = document.getElementById("myModal");
-                  modal.style.display = "block";
-                },
-              },
-              {
-                text: '<i class="fa fa-ellipsis-v" aria-hidden="true"></i>',
-                action: function (e, dt, node, config) {
-                  
-                },
-              },
-            ],
-            responsive:true,
-            select:true,
-            scrollX:true
-          });
+  constructor(props) {
+    super(props);
+    this.state = {
+      factoryData: [],
+      userdata:[],
+    };
+  }
+
+  componentDidMount() {
+    const self = this;
+    axios
+      .get("http://localhost:4000/kingsgate/factories/")
+      .then((res) => {
+        this.setState({ factoryData: res.data });
+        var table = $("#factoryTable").DataTable({
+          searching: false,
+          dom: "Bfrtip",
+          buttons: [],
+          responsive: true,
+          select: true,
+          scrollX: true,
         });
-        
-      }
-    
-      render() {
-        return (
-          <div className="container mx-auto my-4">
-            <table id="example" className="display table" data={stockData}>
-              <thead className="table-dark">
-                <tr>
-                  <th>Factory Name</th>
-                  <th>Owner</th>
-                  <th>Mobile</th>
-                  <th>Sector</th>
-                  <th>Block</th>
-                  <th>Address</th>
-            
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tr>
-                <th>
-                  <input className="form-control" placeholder="Search..." />
-                </th>
-                <th>
-                  <input className="form-control" placeholder="Search..." />
-                </th>
-                <th>
-                  <input className="form-control" placeholder="Search..." />
-                </th>
-                <th>
-                  <input className="form-control" placeholder="Search..." />
-                </th>
-                <th>
-                  <input className="form-control" placeholder="Search..." />
-                </th>
-                <th>
-                  <input className="form-control" placeholder="Search..." />
-                </th>
-                <th>
-                  <input className="form-control" placeholder="Search..." />
-                </th>
-              </tr>
-              <tbody>
-                {stockData.map((data, key) => {
-                  return (
-                    <tr key={key}>
-                      <td style={ {overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }} >{data.company}</td>
-                      <td style={ {overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }} >{data.owner}</td>
-                      <td style={ {overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }} >{data.mobileNumber}</td>
-      
-                      <td style={ {overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }} >{data.sector}</td>
-                      <td style={ {overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }} >{data.block}</td>
-                      <td style={ {overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }} >{data.flatNumber + ','+ data.locality }</td>
+        table.on("select", function (e, dt, type, indexes) {
+          axios
+            .get("http://localhost:4000/kingsgate/factories/")
+            .then((response) => {
+              self.setState({ userdata: response.data[indexes] });
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+          let modal = document.getElementById("factoryDetails");
+          modal.style.display = "block";
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+  addClickedEvent() {
+    let modal = document.getElementById("factoryModal");
+    modal.style.display = "block";
+  }
 
-                      <td style={ {overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }} >{data.status}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+  deleteClient = () => {
+    const self = this;
+    axios
+      .delete(
+        "http://localhost:4000/kingsgate/delete_factory/" +
+          this.state.userdata._id
+      )
+      .then((res) => {
+        console.log("Student successfully deleted!");
+        self.setState({
+          clients: res.data,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-            <div id="myModal" className="modal modal-open">
-            <div className="form-style-10">
-            <h1>Add Factory</h1>
-            <form method="post">
-              <div className="form-group row inner-wrap" id="addFactory">
-                <label className="col-md-6 col-form-label">
-                  Owner Name
-                  <select>
-                    {clientData.map((data,key)=>{
-                      <option key={key}value={data.firstName} >{data.firstName}</option>
-                    }
-                    )}
-                    
-                  </select>
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Mobile Number
-                  <input className="col-sm-12" type="text" name="mobnum" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Factory Name
-                  <input className="col-sm-12" type="text" name="factoryname" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Sector
-                  <input className="col-sm-12" type="text" name="sector" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Block
-                  <input className="col-sm-12" type="text" name="block" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Close Date
-                  <input className="col-sm-12" type="text" name="block" />
-                </label>
-                <label className="col-md-6 col-form-label"> 
-                  Address{" "}
-                  <input
-                    className="col-sm-12"
-                    type="text"
-                    name="factoryaddress"
-                    id="factoryaddress"
-                  />
-                </label>
-                
-                <Button
-                  name="more"
-                  title="More"
-                  variant="secondary"
-                  className="mx-3"
-                  onClick={addFields}
-                  style={{width:'auto',height:30,marginTop:25}}
-                >
-                  Add Factory
-                </Button>
-              </div>
-            </form>
-            <Button variant="secondary">
-            Reset
-          </Button>
-          <Button variant="primary" >
-            Save Changes
-          </Button>
-          <Button variant="danger" >
-            Cancel
-          </Button>
-            </div>
+  render() {
+    return (
+      <div className="container mx-auto my-4">
+        <div className="row mx-2" style={{ justifyContent: "flex-start" }}>
+          <button
+            title="Add"
+            className="btn btn-secondary my-2"
+            onClick={this.addClickedEvent}
+          >
+            Add{" "}
+          </button>
+          <Dropdown style={{ marginLeft: 2, marginTop: 8 }}>
+            <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+              <i className="fa fa-ellipsis-v"></i>
+            </Dropdown.Toggle>
 
-          
-
+            <Dropdown.Menu>
+              <Dropdown.Item onSelect={this.exportData}>Export</Dropdown.Item>
+              <Dropdown.Item href="#/action-2">Import</Dropdown.Item>
+              <Dropdown.Item onSelect={this.deleteClient}>Delete</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
-          </div>
-        );
-      }
-    
+        <table id="factoryTable" className="display table">
+          <thead className="table-dark">
+            <tr>
+              <th>Factory Name</th>
+              <th>Owner</th>
+              <th>Mobile</th>
+              <th>Sector</th>
+              <th>Block</th>
+              <th>Address</th>
+              <th>Close Date</th>
+            </tr>
+          </thead>
+          <tr>
+            <th>
+              <input className="form-control" placeholder="Search..." />
+            </th>
+            <th>
+              <input className="form-control" placeholder="Search..." />
+            </th>
+            <th>
+              <input className="form-control" placeholder="Search..." />
+            </th>
+            <th>
+              <input className="form-control" placeholder="Search..." />
+            </th>
+            <th>
+              <input className="form-control" placeholder="Search..." />
+            </th>
+            <th>
+              <input className="form-control" placeholder="Search..." />
+            </th>
+            <th>
+              <input className="form-control" placeholder="Search..." />
+            </th>
+          </tr>
+          <tbody>
+            {this.state.factoryData.map((data, key) => {
+              return (
+                <tr key={key}>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {data.factory_name}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {data.client_name}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {data.mobile_number}
+                  </td>
+
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {data.factory_sector}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {data.factory_block}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {data.factory_address}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {data.factory_closedate}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        <div id="factoryModal" className="modal modal-open">
+          <FactoryForm />
+        </div>
+        <div id="factoryDetails" className="modal modal-open">
+          <FactoryForm userData={this.state.userdata} />
+        </div>
+      </div>
+    );
+  }
 }

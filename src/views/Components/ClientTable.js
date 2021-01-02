@@ -9,55 +9,190 @@ import "datatables.net-buttons-dt/css/buttons.dataTables.css";
 import "datatables.net-select-dt";
 import * as jzip from "jszip";
 import "pdfmake";
+import { Dropdown } from "react-bootstrap";
 import $ from "jquery";
-import { Button,DropdownButton} from "react-bootstrap";
-import { Switch } from "@material-ui/core";
+import axios from "axios";
 
-import { clientData as stockData } from "../../models/data";
-import { DropDownMenu } from "material-ui";
+import ClientTabs from "../Components/ClientTabs";
+import ClientDetailTabComponent from "../Components/ClientDetailTabComponent";
+import FactoryDetailsTabComponent from "./FactoryDetailsTabComponent";
+import SubscriptionTabComponent from "./SubscriptionTabComponent";
+import PaymentsTabComponent from "./PaymentsTabComponent";
+import ClientForm from "./ClientForm";
 window.JSZip = jzip;
+
 export default class ClientTable extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      gstinput: true,
+      client_name: "",
+      mobile_number: "",
+      phone_number: "",
+      email_id: "",
+      sector: "",
+      block: "",
+      address: "",
+      company: "",
+      gst_num: "",
+      client_type: true,
+      clients: [],
+      rows: "",
+      aivi:'',
+      userdata: [],
+    };
   }
-  componentDidMount() {
-    $(document).ready(function () {
-      var events=$('#events');
-     var table= $("#example").DataTable({
-        searching: false,
-        dom: "Bfrtip",
-        buttons: [
-          {
-            text: "Add",
-            action: function (e, dt, node, config) {
-              let modal = document.getElementById("myModal");
-              modal.style.display = "block";
-            },
-          },
-          {
-            text: '<i class="fa fa-ellipsis-v" aria-hidden="true"></i>',
-            action: function (e, dt, node, config) {
-              
-            },
-          },
-        ],
-        responsive: true,
-        select: true,
-        scrollX: true,
+
+  addClickedEvent() {
+    let modal = document.getElementById("clientModal");
+    modal.style.display = "block";
+  }
+  exportData = () => {
+    var filename = "Kingsgate";
+    var downloadurl;
+    var dataFileType = "application/vnd.ms-excel";
+    var tableSelect = $("#clientTable").DataTable();
+    var tableHTMLData = tableSelect.rows().data().toArray();
+    tableHTMLData = JSON.stringify(tableHTMLData);
+    // Specify file name
+    filename = filename ? filename + ".xls" : "export_excel_data.xls";
+
+    // Create download link element
+    downloadurl = document.createElement("a");
+
+    document.body.appendChild(downloadurl);
+
+    if (navigator.msSaveOrOpenBlob) {
+      var blob = new Blob(["\ufeff", tableHTMLData], {
+        type: dataFileType,
       });
-      table
-      .on( 'select', function ( e, dt, type, indexes ) {
-        var rowData = table.rows( indexes ).data().toArray();
-        events.prepend( '<div><b>'+JSON.stringify( rowData )+'</div>' );
-    } )
+      navigator.msSaveOrOpenBlob(blob, filename);
+    } else {
+      // Create a link to the file
+      downloadurl.href = "data:" + dataFileType + ", " + tableHTMLData;
+
+      // Setting the file name
+      downloadurl.download = filename;
+
+      //triggering the function
+      downloadurl.click();
+    }
+  };
+
+  componentDidMount = () => {
+    const self = this;
+    $("#clientTable").DataTable().destroy();
+    $("#clientTable tfoot td").each(function () {
+      $(this).html(
+        '<input type="text" placeholder="Search" style="margin:0;width:100px;padding:0" />'
+      );
     });
-  }
+    axios
+      .get("http://localhost:4000/kingsgate/")
+      .then((response) => {
+        this.setState({ clients: response.data });
+        var table = $("#clientTable").DataTable({
+          initComplete: function () {
+            // Apply the search
+            this.api().columns().every( function () {
+                var that = this;
+                return( $( 'input', this.footer() ).on( 'keyup change clear', function () {
+                    if ( that.search() !== this.value ) {
+                      
+                        that
+                            .search( this.value )
+                            .draw();
+                    }
+                } )) ;
+            } );
+        },
+          paging: true,
+          searching: false,
+          dom: "Bfrtip",
+          responsive: true,
+          buttons: [],
+          select: true,
+        });
+        table
+        .on("select", function (e, dt, type, indexes) {
+          axios
+            .get("http://localhost:4000/kingsgate/")
+            .then((response) => {
+              console.log(response.data[indexes]);
+              self.setState({ userdata: response.data[indexes] });
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+
+          let modal = document.getElementById("addClientModal");
+          modal.style.display = "block";
+        });
+        table
+        .on("deselect", function (e, dt, type, indexes) {
+          let modal = document.getElementById("addClientModal");
+          modal.style.display = "none";
+        });
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+  closeClientModal = () => {
+    let modal = document.getElementById("addClientModal");
+    modal.style.display = "none";
+  };
+
+  deleteClient = () => {
+    const self = this;
+    axios
+      .delete(
+        "http://localhost:4000/kingsgate/delete_client/" +
+          this.state.userdata._id
+      )
+      .then((res) => {
+        console.log("Student successfully deleted!");
+        self.setState({
+          clients: res.data,
+        });
+        
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+      axios
+      .get("http://localhost:4000/kingsgate/")
+      .then((resp)=>{
+        this.setState({clients:resp.data})
+      })
+  };
 
   render() {
     return (
       <div className="container mx-auto my-4">
-        <div id="events"></div>
-        <table id="example" className="display table" data={stockData}>
+        <div className="row mx-2" style={{ justifyContent: "flex-start" }}>
+          <button
+            title="Add"
+            className="btn btn-secondary my-2"
+            onClick={this.addClickedEvent}
+          >
+            Add{" "}
+          </button>
+          <Dropdown style={{ marginLeft: 2, marginTop: 8 }}>
+            <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+              <i className="fa fa-ellipsis-v"></i>
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu>
+              <Dropdown.Item onSelect={this.exportData}>Export</Dropdown.Item>
+              <Dropdown.Item href="#/action-2">Import</Dropdown.Item>
+              <Dropdown.Item onSelect={this.deleteClient}>Delete</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
+
+        <table id="clientTable" className="display">
           <thead className="table-dark">
             <tr>
               <th>Client Name</th>
@@ -70,34 +205,9 @@ export default class ClientTable extends Component {
               <th>Status</th>
             </tr>
           </thead>
-            <tr>
-              <th>
-                <input className="form-control" placeholder="Search..." />
-              </th>
-              <th>
-                <input className="form-control" placeholder="Search..." />
-              </th>
-              <th>
-                <input className="form-control" placeholder="Search..." />
-              </th>
-              <th>
-                <input className="form-control" placeholder="Search..." />
-              </th>
-              <th>
-                <input className="form-control" placeholder="Search..." />
-              </th>
-              <th>
-                <input className="form-control" placeholder="Search..." />
-              </th>
-              <th>
-                <input className="form-control" placeholder="Search..." />
-              </th>
-              <th>
-                <input className="form-control" placeholder="Search..." />
-              </th>
-            </tr>
+
           <tbody>
-            {stockData.map((data, key) => {
+            {this.state.clients.map((data, key) => {
               return (
                 <tr key={key}>
                   <td
@@ -107,7 +217,7 @@ export default class ClientTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.firstName + " " + data.lastName}
+                    {data.client_name || ""}
                   </td>
                   <td
                     style={{
@@ -116,7 +226,7 @@ export default class ClientTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.company}
+                    {data.company || ""}
                   </td>
                   <td
                     style={{
@@ -125,7 +235,7 @@ export default class ClientTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.mobileNumber}
+                    {data.mobile_number || ""}
                   </td>
                   <td
                     style={{
@@ -134,7 +244,7 @@ export default class ClientTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.sector}
+                    {data.sector || ""}
                   </td>
                   <td
                     style={{
@@ -143,7 +253,7 @@ export default class ClientTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.block}
+                    {data.block || ""}
                   </td>
                   <td
                     style={{
@@ -152,9 +262,7 @@ export default class ClientTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.flatNumber +
-                      ", " +
-                      data.locality}
+                    {data.address || ""}
                   </td>
                   <td
                     style={{
@@ -163,7 +271,7 @@ export default class ClientTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.type}
+                    {data.client_type || ""}
                   </td>
                   <td
                     style={{
@@ -172,80 +280,64 @@ export default class ClientTable extends Component {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {data.status}
+                    Active
                   </td>
                 </tr>
               );
             })}
           </tbody>
+          <tfoot className="table">
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
         </table>
 
-        <div id="myModal" className="modal modal-open">
-        <div className="form-style-10">
-            <h1>Add Client</h1>
-            <form method="post">
-              <div className="section">
-                <span>1</span>Personal Details
-              </div>
-              <div className="form-group row inner-wrap">
-                <label className="col-md-6 col-form-label">
-                  Client Name{" "}
-                  <input className="col-sm-12" type="text" name="cname" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Phone Number{" "}
-                  <input className="col-sm-12" type="text" name="phno" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Mobile Number{" "}
-                  <input className="col-sm-12" type="text" required name="mobno" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Email Address{" "}
-                  <input className="col-sm-12" type="email" name="eid" />
-                </label>
-              </div>
-              <div className="section">
-                <span>2</span>Billing Details
-              </div>
-              <div className="form-group row inner-wrap">
-                <label className="col-md-6 col-form-label">
-                  Sector{" "}
-                  <input className="col-sm-12" type="text" name="flatnum" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Block <input className="col-sm-12" type="text" name="sect" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Address <input className="col-sm-12" type="text" name="block" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  Company Name <input type="text" name="compname" />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  GST Applicable
-                  <Switch onChange={()=>{document.getElementById('gstinput').disabled=false}} />
-                </label>
-                <label className="col-md-6 col-form-label">
-                  GST Number{" "}
-                  <input className="col-sm-12" disabled type="text" id='gstinput' name="gstnum" />
-                </label>
-                
-              </div>
-            </form>
-            <Button variant="secondary">
-            Reset
-          </Button>
-          <Button variant="primary" >
-            Save Changes
-          </Button>
-          <Button variant="danger" >
-            Cancel
-          </Button>
+        <div id="clientModal" className="modal modal-open">
+          <ClientForm />
+        </div>
+
+        <div className="modal modal-open" id="addClientModal">
+          <div className="modal-content">
+            <div className="modal-body">
+              <ClientTabs>
+                <div label="Client Details">
+                  <ClientDetailTabComponent userdata={this.state.userdata} />
+                </div>
+                <div label="Factories">
+                  <FactoryDetailsTabComponent userdata={this.state.userdata} />
+                </div>
+                <div label="Subscriptions">
+                  <SubscriptionTabComponent userdata={this.state.userdata} />
+                </div>
+                <div label="Invoice">
+                  <PaymentsTabComponent userdata={this.state.userdata} />
+                </div>
+                <div label="Challan">
+                  <PaymentsTabComponent userdata={this.state.userdata} />
+                </div>
+              </ClientTabs>
             </div>
-
-          
-
+            <div className="modal-footer">
+              <button type="button" className="btn btn-primary">
+                Save changes
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={this.closeClientModal}
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

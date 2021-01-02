@@ -21,7 +21,7 @@
 .form-style-10 h1{
 	background: #2A88AD;
 	padding: 20px 30px 15px 30px;
-	margin: -30px -30px 30px -30px;
+	margin: -70px -30px 30px -30px;
 	border-radius: 10px 10px 0 0;
 	-webkit-border-radius: 10px 10px 0 0;
 	-moz-border-radius: 10px 10px 0 0;
@@ -87,6 +87,9 @@
 	margin-left: -45px;
 	color: #fff;
 	margin-top: -3px;
+}
+.form-style-10 input[type="date"]{
+flex-direction: row;
 }
 .form-style-10 input[type="button"], 
 .form-style-10 input[type="submit"]{

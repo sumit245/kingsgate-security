@@ -3,10 +3,9 @@ import 'jquery/dist/jquery'
 import SideNavBar from "../Components/SideNavBar";
 import Footer from "../Components/Footer";
 import TopNav from "../Components/TopNav";
-import ClientTable from "../Components/ClientTable";
+import ChallanHistoryTable from '../Components/ChallanHistoryTable'
 
-
-export default class ClientScreen extends Component {
+export default class ChallanScreen extends Component {
     componentDidMount() {
         const script = document.createElement("script");
         script.src = "../../js/jquery-3.1.1.min.js";
@@ -15,19 +14,18 @@ export default class ClientScreen extends Component {
         script.async = true;
         document.body.appendChild(script);
       }
-      render() {
+    render() {
         return (
-          <>
-            <SideNavBar />
+            <>
+                <SideNavBar />
             <div id="page-wrapper" className="gray-bg dashbard-1">
               <div className="row border-bottom">
                 <TopNav /> 
               </div>
-              <ClientTable />
-              {/* <CreateTodo /> */}
+              <ChallanHistoryTable />
               <Footer />
-            </div>
-          </>
-        );
-      }
+            </div> 
+            </>
+        )
+    }
 }
